@@ -20,6 +20,21 @@ from pyspark.sql.functions import split, regexp_extract, col, to_timestamp, coal
     name="silver_fix_messages",
     comment="Bronze table cleaned and parsed"
 )
+@dlt.expect("valid BeginString", "BeginString LIKE 'FIX%'")
+@dlt.expect("valid BodyLength", "BodyLength > 0")
+@dlt.expect("valid MsgType", "MsgType IS NOT NULL")
+@dlt.expect("valid MsgSeqNum", "MsgSeqNum > 0")
+@dlt.expect("valid SenderCompID", "SenderCompID IS NOT NULL")
+@dlt.expect("valid SendingTime", "SendingTime IS NOT NULL")
+@dlt.expect("valid TargetCompID", "TargetCompID IS NOT NULL")
+@dlt.expect("valid ClOrdID", "ClOrdID IS NOT NULL")
+@dlt.expect("valid Account", "Account IS NOT NULL")
+@dlt.expect("valid Symbol", "Symbol IS NOT NULL")
+@dlt.expect("valid Side", "Side IN (1, 2)")
+@dlt.expect("valid Currency", "Currency IS NOT NULL")
+@dlt.expect("valid TransactTime", "TransactTime IS NOT NULL")
+@dlt.expect("valid TimeInForce", "TimeInForce IS NOT NULL")
+@dlt.expect("valid CheckSum", "CheckSum IS NOT NULL")
 def silver_fix_messages():
     return (
         spark.read.table("bronze_fix_messages")
