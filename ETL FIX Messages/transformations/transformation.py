@@ -65,11 +65,18 @@ def silver_fix_messages():
         .dropDuplicates()
     )
 
+from pyspark.sql.functions import avg, count
+
 @dlt.table(
     name="gold_fix_messages",
-    comment="Gold table business aggregates"
+    comment="Gold table with business aggregates"
 )
 def gold_fix_messages():
     return (
         spark.read.table("silver_fix_messages")
+        .groupBy("Symbol")
+        .agg(
+            count("ClOrdID").alias("TotalOrders"),
+            avg("BodyLength").alias("AverageOrderSize")
+        )
     )
