@@ -1,4 +1,5 @@
 import dlt
+from pyspark.sql.functions import split, regexp_extract, col, to_timestamp, coalesce
 
 @dlt.table(
     name="bronze_fix_messages",
@@ -11,10 +12,9 @@ def bronze_fix_messages():
             .option("header", "false")
             .option("cloudFiles.schemaLocation", "s3://awsbucketpictetmtr/schemaLocation/")
             .option("cloudFiles.inferColumnTypes", "true")
-            .load("s3://awsbucketpictetmtr/")
+            .load("s3://awsbucketpictetmtr/logs/")
+            .select("*", col("_metadata.file_path").alias("source_file_name"))
     )
-
-from pyspark.sql.functions import split, regexp_extract, col, to_timestamp, coalesce
 
 @dlt.table(
     name="silver_fix_messages",
@@ -38,7 +38,7 @@ from pyspark.sql.functions import split, regexp_extract, col, to_timestamp, coal
 def silver_fix_messages():
     return (
         spark.read.table("bronze_fix_messages")
-        .filter("_c0 LIKE '%8=FIX.4.2%'")
+        .filter("_c0 LIKE '%8=FIX%'")
         .select(
             regexp_extract("_c0", r'8=([^|]+)', 1).alias("BeginString"),
             regexp_extract("_c0", r'9=([^|]+)', 1).cast("int").alias("BodyLength"),
@@ -60,7 +60,8 @@ def silver_fix_messages():
                 to_timestamp(regexp_extract("_c0", r'60=([^|]+)', 1), "yyyy-MM-dd-HH:mm:ss.SSS")
             ).alias("TransactTime"),
             regexp_extract("_c0", r'59=([^|]+)', 1).cast("int").alias("TimeInForce"),
-            regexp_extract("_c0", r'10=([^|]+)', 1).cast("int").alias("CheckSum")
+            regexp_extract("_c0", r'10=([^|]+)', 1).cast("int").alias("CheckSum"),
+            col('source_file_name').alias('SourceFileName')
         )
         .dropDuplicates()
     )
