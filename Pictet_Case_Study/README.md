@@ -1,7 +1,7 @@
 # Pictet Case Study – FIX Message Processing
 
 ## Overview
-This repository contains my submission for the **Pictet Trading & Sales – Data Engineer** case study.
+This repository contains my submission for the **Pictet Trading & Sales – Data Engineer** case study (July 9th, 2025).
 
 It includes:
 - **Presentation** – Slides summarizing the proposed solution and architecture.
@@ -19,13 +19,13 @@ The solution demonstrates:
 ## How to Run
 
 ### 1) Environment
-- **Platform:** Databricks (AWS)
+- **Platform:** Databricks Free Edition
 - **Runtime:** DBR 14.x (Spark 3.x)
 - **Languages:** Python 3.10, SQL
 - **Features:** Lakeflow Declarative Pipelines (DLT), Auto Loader
 
 ### 2) Prerequisites
-- Access to a Databricks workspace + permission to create **Lakeflow Declarative Pipelines** and **Jobs**
+- Access to a Databricks workspace + permission to create **ETL pipelines** and **Jobs**
 - An **S3 bucket** where you can write (for raw data + checkpoints)
 - A Unity Catalog **catalog** and **schema** (or default Hive metastore)
 
@@ -43,8 +43,8 @@ The solution demonstrates:
 1. Upload `data/fix_logs.txt` to S3 at `s3://<bucket>/fix/raw/`  
    (You can also use DBFS, then set `RAW_PATH` accordingly.)
 
-### 5) Create the DLT pipeline
-1. Left sidebar → **Workflows** → **Delta Live Tables** → **Create pipeline**.
+### 5) Create the ETL pipeline
+1. Left sidebar → **Workflows** → **Create pipeline**.
 2. **Source**: point to the notebook(s) in `code/notebooks/` (or the DLT Python script if you use one).
 3. **Target**: set `CATALOG.SCHEMA`.
 4. **Configuration**: add the keys from step 2.
@@ -53,7 +53,7 @@ The solution demonstrates:
    - **Continuous** if you want near-real-time ingestion (streaming).
 6. **Start** the pipeline and wait for tables to materialize.
 
-### 6) (Optional) Schedule as a Job
+### 6) Schedule as a Job
 1. **Workflows** → **Jobs** → **Create Job**.
 2. Add a **Delta Live Tables** task that runs the pipeline from step 5.
 3. Set a schedule (e.g., every 15 minutes) or keep it continuous.
